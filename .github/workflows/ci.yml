@@ -9,10 +9,16 @@ on:
 jobs:
   # not1d is not published: it is installed from source (an sdist, or
   # `uv add git+https://github.com/pietroppeter/not1d`), which compiles the Nim
-  # code through nimlang. This job takes that path, then runs the tests,
+  # code through nimlang. This job takes that path, with each sort (the Nim radix
+  # sort, and ot1d's C++ pdqsort with NOT1D_SORT=pdqsort), then runs the tests,
   # including the comparison with the original ot1d.
   test:
+    strategy:
+      matrix:
+        sort: [radix, pdqsort]
     runs-on: ubuntu-latest
+    env:
+      NOT1D_SORT: ${{ matrix.sort }}
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v6
@@ -24,5 +30,7 @@ jobs:
           uv pip install --python test-env dist/*.tar.gz pytest scipy cython setuptools
           # ot1d ships only an sdist, whose build needs Cython and numpy installed first
           uv pip install --python test-env --no-build-isolation ot1d
+      - name: Built with the expected sort
+        run: test-env/bin/python -c "from not1d.core import sortAlgorithm as s; assert s() == '${{ matrix.sort }}', s()"
       - name: Tests
         run: test-env/bin/python -m pytest -v -p no:cacheprovider tests

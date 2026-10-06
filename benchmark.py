@@ -12,6 +12,7 @@
 """Time not1d against scipy and the original ot1d.
 
     uv run benchmark.py
+    NOT1D_SORT=pdqsort uv run benchmark.py   # not1d built with ot1d's C++ pdqsort
 """
 
 import timeit
@@ -20,6 +21,7 @@ import numpy as np
 from scipy.stats import wasserstein_distance
 
 from not1d import ot1d
+from not1d.core import sortAlgorithm
 from OT1D import OT1D  # ot1d's module
 
 rng = np.random.default_rng(13)
@@ -29,6 +31,7 @@ def best(f, number):
     return min(timeit.repeat(f, number=number, repeat=5)) / number
 
 
+print(f"not1d sort: {sortAlgorithm()}\n")
 print("| n | case | not1d | scipy | ot1d (1 thread) | ot1d (8 threads) |")
 print("|--:|:-----|------:|------:|----------------:|-----------------:|")
 for n in [1_000, 100_000, 1_000_000]:

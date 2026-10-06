@@ -37,6 +37,30 @@ The sort is the expensive part. Nim's `std/algorithm.sort` is a merge sort throu
 proc and was about 5x slower than ot1d overall; [`src/not1d/sorting.nim`](src/not1d/sorting.nim)
 is a 60-line radix sort on the float bits that brings it on par with ot1d's pdqsort.
 
+ot1d's own C++ pdqsort is available too, as a build-time switch, to compare the two:
+
+```sh
+NOT1D_SORT=pdqsort uv sync              # or uv build, uv run benchmark.py
+uv run python -c "from not1d.core import sortAlgorithm; print(sortAlgorithm())"  # pdqsort
+```
+
+Nim calls `pdqsort.h` directly (`importcpp` in `sorting.nim`), which needs Nim's C++ backend:
+[`src/not1d/core.nims`](src/not1d/core.nims) switches to it and compiles the C++ with the same
+`zig cc` that nimlang uses for C, linking zig's libc++ statically. So the module needs no C++
+runtime on the user's machine, and the pdqsort build cross-compiles like the default one (checked
+by hand for nimlang's five wheel platforms).
+
+With pdqsort, not1d runs as fast as ot1d on one thread: same algorithm, same sort, so the Nim
+code adds no overhead. The radix sort is faster, most of all with weights, where pdqsort moves
+(point, mass) pairs through a comparison function. On 1M points (ms):
+
+| machine | case | not1d radix | not1d pdqsort | ot1d (1 thread) |
+|:--------|:-----|------------:|--------------:|----------------:|
+| Apple Silicon Mac | uniform | 16 | 32 | 31 |
+| Apple Silicon Mac | weighted | 27 | 97 | 89 |
+| 4-core Linux container | uniform | 60 | 60 | 55 |
+| 4-core Linux container | weighted | 120 | 156 | 147 |
+
 ## How it is built
 
 The whole package is `pyproject.toml`, two Nim files and a thin Python wrapper:
@@ -46,7 +70,9 @@ pyproject.toml
 nimlang.lock                 # pinned commits of the Nim dependencies
 src/not1d/__init__.py        # ot1d(): argument checks, lists to numpy arrays
 src/not1d/core.nim           # the algorithm, importable as not1d.core
-src/not1d/sorting.nim        # radix sort
+src/not1d/sorting.nim        # radix sort, or ot1d's pdqsort with NOT1D_SORT=pdqsort
+src/not1d/core.nims          # build options: the C++ backend for pdqsort
+src/not1d/pdqsort.h          # from ot1d (zlib license), and pdqsort_wrap.h
 ```
 
 ```toml
