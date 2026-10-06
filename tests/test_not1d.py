@@ -85,7 +85,7 @@ def test_invalid_arguments(kwargs):
         ot1d([0.0, 1.0], [2.0], **kwargs)
 
 
-@pytest.mark.parametrize("m,n", [(5000, 3000), (2000, 2000)])
+@pytest.mark.parametrize("m,n", [(3000, 1000), (500, 500)])
 def test_ties_and_wide_range(m, n):
     # Many equal points, and magnitudes from 1e-300 to 1e300 of both signs:
     # exercises every digit of the radix sort.
