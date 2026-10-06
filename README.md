@@ -46,9 +46,9 @@ uv run python -c "from not1d.core import sortAlgorithm; print(sortAlgorithm())" 
 
 Nim calls `pdqsort.h` directly (`importcpp` in `sorting.nim`), which needs Nim's C++ backend:
 [`src/not1d/core.nims`](src/not1d/core.nims) switches to it and compiles the C++ with the same
-`zig cc` that nimlang uses for C, linking zig's libc++ statically. So the pdqsort build
-cross-compiles to all five platforms like the default one, and its wheels need no C++ runtime on
-the user's machine.
+`zig cc` that nimlang uses for C, linking zig's libc++ statically. So the module needs no C++
+runtime on the user's machine, and the pdqsort build cross-compiles like the default one (checked
+by hand for nimlang's five wheel platforms).
 
 With pdqsort, not1d runs as fast as ot1d on one thread: same algorithm, same sort, so the Nim
 code adds no overhead. The radix sort is faster, most of all with weights, where pdqsort moves
@@ -88,9 +88,17 @@ dependencies = ["nimpy", "https://github.com/pietroppeter/nimpy-numpy"]
 ```
 
 [nimpy-numpy](https://github.com/pietroppeter/nimpy-numpy) lets the Nim procs take numpy arrays
-directly (`NumpyArray[float64]`, a view through the buffer protocol). The CI builds wheels for
-Linux, macOS and Windows on one Linux machine and tests each one on its own OS, with no Nim and
-no C compiler installed.
+directly (`NumpyArray[float64]`, a view through the buffer protocol).
+
+not1d is not published on PyPI. Install it from GitHub; uv builds it with nimlang, so no Nim and
+no C compiler are needed:
+
+```sh
+uv add git+https://github.com/pietroppeter/not1d
+```
+
+`uv build` would also give a wheel, and nimlang can cross-build wheels for other platforms
+(see [uv-add-nimlang-lib-demo](https://github.com/pietroppeter/uv-add-nimlang-lib-demo)).
 
 ```sh
 uv sync                      # builds the extension
