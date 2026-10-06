@@ -72,13 +72,16 @@ jobs:
   # skipped elsewhere). ot1d ships only an sdist that needs Cython and numpy to build.
   ot1d:
     needs: build
+    strategy:
+      matrix:
+        sort: [radix, pdqsort]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v6
       - uses: actions/download-artifact@v4
         with:
-          name: dist
+          name: dist-${{ matrix.sort }}
           path: dist
       - name: Install not1d and ot1d
         run: |
