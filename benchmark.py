@@ -22,11 +22,7 @@ from scipy.stats import wasserstein_distance
 
 from not1d import ot1d
 from not1d.core import sortAlgorithm
-
-try:
-    from OT1D import OT1D
-except ImportError:
-    OT1D = None
+from OT1D import OT1D  # ot1d's module
 
 rng = np.random.default_rng(13)
 
@@ -47,8 +43,7 @@ for n in [1_000, 100_000, 1_000_000]:
         row = [
             best(lambda: ot1d(x, y, *args), number),
             best(lambda: wasserstein_distance(x, y, *args), number),
+            *[best(lambda: OT1D(x, y, *args, threads=t), number) for t in (1, 8)],
         ]
-        if OT1D is not None:
-            row += [best(lambda: OT1D(x, y, *args, threads=t), number) for t in (1, 8)]
         cells = " | ".join(f"{1e3 * t:.2f} ms" for t in row)
         print(f"| {n:,} | {case} | {cells} |")
