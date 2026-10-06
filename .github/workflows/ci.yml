@@ -8,9 +8,15 @@ on:
 
 jobs:
   # One Linux machine builds the sdist and the wheels for every platform: nimlang
-  # cross-compiles through zig cc.
+  # cross-compiles through zig cc. Wheels are built twice: with the Nim radix sort
+  # (the default) and with ot1d's C++ pdqsort (NOT1D_SORT=pdqsort, C++ backend).
   build:
+    strategy:
+      matrix:
+        sort: [radix, pdqsort]
     runs-on: ubuntu-latest
+    env:
+      NOT1D_SORT: ${{ matrix.sort }}
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v6
@@ -26,7 +32,7 @@ jobs:
           ls -l dist
       - uses: actions/upload-artifact@v4
         with:
-          name: dist
+          name: dist-${{ matrix.sort }}
           path: dist
 
   # Each wheel installed and tested on its own OS, with no nimlang and no ziglang.
@@ -37,6 +43,7 @@ jobs:
       matrix:
         os: [ubuntu-latest, ubuntu-24.04-arm, macos-14, macos-15-intel, windows-latest]
         python: ["3.9", "3.14"]
+        sort: [radix, pdqsort]
     runs-on: ${{ matrix.os }}
     defaults:
       run:
@@ -46,7 +53,7 @@ jobs:
       - uses: astral-sh/setup-uv@v6
       - uses: actions/download-artifact@v4
         with:
-          name: dist
+          name: dist-${{ matrix.sort }}
           path: dist
       - name: Install the wheel for this platform
         run: |
@@ -56,22 +63,30 @@ jobs:
           echo "$PWD/$bin" >> "$GITHUB_PATH"
       - name: No build toolchain installed
         run: python -c "import importlib.util as u; assert not u.find_spec('nimlang') and not u.find_spec('ziglang')"
+      - name: Built with the expected sort
+        run: python -c "from not1d.core import sortAlgorithm as s; assert s() == '${{ matrix.sort }}', s()"
       - name: Tests
         run: python -m pytest -v -p no:cacheprovider tests
 
   # Installing from the sdist compiles the Nim code: this is the path that needs nimlang.
   sdist:
     needs: build
+    strategy:
+      matrix:
+        sort: [radix, pdqsort]
     runs-on: ubuntu-latest
+    env:
+      NOT1D_SORT: ${{ matrix.sort }}
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v6
       - uses: actions/download-artifact@v4
         with:
-          name: dist
+          name: dist-${{ matrix.sort }}
           path: dist
       - name: Build and install from the sdist
         run: |
           uv venv sdist-env
           uv pip install --python sdist-env --no-binary not1d dist/*.tar.gz pytest scipy
+          sdist-env/bin/python -c "from not1d.core import sortAlgorithm as s; assert s() == '${{ matrix.sort }}', s()"
           sdist-env/bin/python -m pytest -v -p no:cacheprovider tests

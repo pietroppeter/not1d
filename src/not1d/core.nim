@@ -75,8 +75,8 @@ proc ot1d(x, y: NumpyArray[float64], p: int = 1,
   var x = x.toSeq
   var y = y.toSeq
   if sorting:
-    x.radixSort()
-    y.radixSort()
+    x.sortFloats()
+    y.sortFloats()
   if x.len == y.len:
     # Same size: the i-th smallest x goes entirely to the i-th smallest y.
     var z = 0.0
@@ -91,7 +91,7 @@ proc sortByPoint(x, w: seq[float]): (seq[float], seq[float]) =
   var pairs = newSeq[(float, float)](x.len)
   for i in 0 ..< x.len:
     pairs[i] = (x[i], w[i])
-  pairs.radixSort()
+  pairs.sortFloats()
   result = (newSeq[float](x.len), newSeq[float](x.len))
   for i, (xi, wi) in pairs:
     result[0][i] = xi
@@ -110,3 +110,7 @@ proc ot1dWeighted(x, y, mu, nu: NumpyArray[float64], p: int = 1,
     (x, mu) = sortByPoint(x, mu)
     (y, nu) = sortByPoint(y, nu)
   finish(transport(x, mu, y, nu, p), p)
+
+proc sortAlgorithm(): string {.exportpy.} =
+  ## Which sort this build uses: "radix" (Nim) or "pdqsort" (C++).
+  sorting.sortAlgorithm
