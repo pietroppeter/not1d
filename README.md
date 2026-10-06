@@ -35,6 +35,10 @@ linear program give in 1D). It is in [`src/not1d/core.nim`](src/not1d/core.nim),
 of Nim. Uniform masses are a tiny `Uniform` type with a `[]`, so one generic `transport` proc
 serves both the uniform and the weighted case with no weights allocated.
 
+[ot1d (C++) and not1d (Nim), side by side](docs/ot1d-vs-not1d.md) walks through the algorithm
+on a small example and compares the two codebases, explaining the C++ for readers who know Nim
+or Python.
+
 The sort is the expensive part. Nim's `std/algorithm.sort` is a merge sort through a comparison
 proc and was about 5x slower than ot1d overall; [`src/not1d/sorting.nim`](src/not1d/sorting.nim)
 is a 60-line radix sort on the float bits that brings it on par with ot1d's pdqsort.
@@ -75,6 +79,7 @@ src/not1d/core.nim           # the algorithm, importable as not1d.core
 src/not1d/sorting.nim        # radix sort, or ot1d's pdqsort with NOT1D_SORT=pdqsort
 src/not1d/core.nims          # build options: the C++ backend for pdqsort
 src/not1d/pdqsort.h          # from ot1d (zlib license), and pdqsort_wrap.h
+docs/ot1d-vs-not1d.md        # explainer: ot1d's C++ and not1d's Nim side by side
 ```
 
 ```toml
