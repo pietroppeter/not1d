@@ -62,9 +62,17 @@ dependencies = ["nimpy", "https://github.com/pietroppeter/nimpy-numpy"]
 ```
 
 [nimpy-numpy](https://github.com/pietroppeter/nimpy-numpy) lets the Nim procs take numpy arrays
-directly (`NumpyArray[float64]`, a view through the buffer protocol). The CI builds wheels for
-Linux, macOS and Windows on one Linux machine and tests each one on its own OS, with no Nim and
-no C compiler installed.
+directly (`NumpyArray[float64]`, a view through the buffer protocol).
+
+not1d is not published on PyPI. Install it from GitHub; uv builds it with nimlang, so no Nim and
+no C compiler are needed:
+
+```sh
+uv add git+https://github.com/pietroppeter/not1d
+```
+
+`uv build` would also give a wheel, and nimlang can cross-build wheels for other platforms
+(see [uv-add-nimlang-lib-demo](https://github.com/pietroppeter/uv-add-nimlang-lib-demo)).
 
 ```sh
 uv sync                      # builds the extension
