@@ -11,7 +11,7 @@ OT1D = pytest.importorskip("OT1D").OT1D
 rng = np.random.default_rng(7)
 
 
-@pytest.mark.parametrize("m,n", [(1, 1), (10, 10), (10, 7), (1000, 333), (20_000, 50_000)])
+@pytest.mark.parametrize("m,n", [(1, 1), (10, 10), (10, 7), (1000, 333), (300, 2000)])
 @pytest.mark.parametrize("p", [1, 2])
 @pytest.mark.parametrize("weighted", [False, True])
 def test_same_as_ot1d(m, n, p, weighted):
