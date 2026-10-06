@@ -74,7 +74,21 @@ uv run benchmark.py          # not1d vs scipy and ot1d (a uv script: deps in its
 
 ## Benchmark
 
-`benchmark.py` on a 4-core Linux container, with `y` half the size of `x` (milliseconds, best of 5):
+`uv run benchmark.py`, with `y` half the size of `x` (milliseconds, best of 5). Timings depend
+on the machine; two runs:
+
+On an Apple Silicon Mac:
+
+| n | case | not1d | scipy | ot1d (1 thread) | ot1d (8 threads) |
+|--:|:-----|------:|------:|----------------:|-----------------:|
+| 1,000 | uniform | 0.04 | 0.06 | 0.01 | 0.37 |
+| 1,000 | weighted | 0.03 | 0.07 | 0.01 | 0.40 |
+| 100,000 | uniform | 1.56 | 19.37 | 2.54 | 1.58 |
+| 100,000 | weighted | 2.55 | 20.01 | 7.44 | 2.80 |
+| 1,000,000 | uniform | 16.21 | 244.98 | 28.94 | 12.89 |
+| 1,000,000 | weighted | 26.87 | 249.92 | 89.70 | 25.69 |
+
+On a 4-core Linux container:
 
 | n | case | not1d | scipy | ot1d (1 thread) | ot1d (8 threads) |
 |--:|:-----|------:|------:|----------------:|-----------------:|
