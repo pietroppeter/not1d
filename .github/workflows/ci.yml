@@ -1,0 +1,77 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  # One Linux machine builds the sdist and the wheels for every platform: nimlang
+  # cross-compiles through zig cc.
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - name: Build sdist
+        run: uv build --sdist --out-dir dist
+      - name: Build wheels
+        run: |
+          for target in x86_64-linux-gnu.2.17 aarch64-linux-gnu.2.17 aarch64-macos x86_64-macos x86_64-windows-gnu; do
+            echo "::group::$target"
+            NIMLANG_TARGET=$target uv build --wheel --out-dir dist
+            echo "::endgroup::"
+          done
+          ls -l dist
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist
+
+  # Each wheel installed and tested on its own OS, with no nimlang and no ziglang.
+  test:
+    needs: build
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, ubuntu-24.04-arm, macos-14, macos-15-intel, windows-latest]
+        python: ["3.9", "3.14"]
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist
+      - name: Install the wheel for this platform
+        run: |
+          uv venv -p ${{ matrix.python }} user-env
+          uv pip install --python user-env --only-binary not1d --find-links dist not1d pytest scipy
+          if [ "$RUNNER_OS" = "Windows" ]; then bin=user-env/Scripts; else bin=user-env/bin; fi
+          echo "$PWD/$bin" >> "$GITHUB_PATH"
+      - name: No build toolchain installed
+        run: python -c "import importlib.util as u; assert not u.find_spec('nimlang') and not u.find_spec('ziglang')"
+      - name: Tests
+        run: python -m pytest -v -p no:cacheprovider tests
+
+  # Installing from the sdist compiles the Nim code: this is the path that needs nimlang.
+  sdist:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist
+      - name: Build and install from the sdist
+        run: |
+          uv venv sdist-env
+          uv pip install --python sdist-env --no-binary not1d dist/*.tar.gz pytest scipy
+          sdist-env/bin/python -m pytest -v -p no:cacheprovider tests
