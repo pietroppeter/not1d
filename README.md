@@ -48,9 +48,18 @@ Nim calls `pdqsort.h` directly (`importcpp` in `sorting.nim`), which needs Nim's
 [`src/not1d/core.nims`](src/not1d/core.nims) switches to it and compiles the C++ with the same
 `zig cc` that nimlang uses for C, linking zig's libc++ statically. So the pdqsort build
 cross-compiles to all five platforms like the default one, and its wheels need no C++ runtime on
-the user's machine. On 1M points the two sorts take about the same time with uniform masses;
-with weights the radix sort is faster (about 120 ms against 155 ms), since pdqsort moves
-(point, mass) pairs through a comparison function.
+the user's machine.
+
+With pdqsort, not1d runs as fast as ot1d on one thread: same algorithm, same sort, so the Nim
+code adds no overhead. The radix sort is faster, most of all with weights, where pdqsort moves
+(point, mass) pairs through a comparison function. On 1M points (ms):
+
+| machine | case | not1d radix | not1d pdqsort | ot1d (1 thread) |
+|:--------|:-----|------------:|--------------:|----------------:|
+| Apple Silicon Mac | uniform | 16 | 32 | 31 |
+| Apple Silicon Mac | weighted | 27 | 97 | 89 |
+| 4-core Linux container | uniform | 60 | 60 | 55 |
+| 4-core Linux container | weighted | 120 | 156 | 147 |
 
 ## How it is built
 
