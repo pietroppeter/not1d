@@ -160,6 +160,11 @@ What changed, and why:
   specialised copy for each combination, so the uniform case costs nothing extra and allocates
   no weight array. C++ templates (section 4) do the same thing; ot1d just does not use them for
   this part.
+- Generics exist only at compile time. Python can only call the exported procs, which are not
+  generic: `ot1d` calls `transport` with two `Uniform`s and `ot1dWeighted` with two
+  `seq[float]`s (the sorted copies of the numpy masses), so the compiled module contains exactly
+  those two versions. Python lists never reach Nim: the Python wrapper turns them into numpy
+  arrays first, and also builds the uniform masses when only one side has weights.
 - `p` is a parameter instead of separate functions. `cost` is `{.inline.}`, and `p` is the same
   for the whole loop, so the branch on p is well predicted and costs very little.
 - `result` is Nim's implicit return variable, starting at 0.0. C++ has no such thing, hence
