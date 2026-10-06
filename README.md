@@ -4,7 +4,7 @@ A minimal, partial port to Nim of [ot1d](https://github.com/stegua/ot1d) by Stef
 the Kantorovich-Wasserstein distance between two discrete measures on the real line. The `n`
 stands for Nim, and the goal is not to replace ot1d but to show that
 [nimlang](https://github.com/pietroppeter/uv-add-nimlang) makes a non-trivial Nim algorithm
-easy to ship to Python users.
+easy to ship to Python users. It also tests the usage of cpp backend with nimlang.
 
 > AI disclosure: this project is mostly vibed. Currently [level 7](https://www.visidata.org/blog/2026/ai/#level-6%3A-bots-coded%2C-human-understands-mostly) on visidata AI scale: Human specced, bots coded.
 
