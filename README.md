@@ -91,7 +91,7 @@ build-backend = "hatchling.build"
 extensions = ["src/not1d/core.nim"]
 
 [tool.nimlang]
-dependencies = ["nimpy", "https://github.com/pietroppeter/nimpy-numpy"]
+dependencies = ["nimpy", "nimpy_numpy >= 0.1.0"]
 ```
 
 [nimpy-numpy](https://github.com/pietroppeter/nimpy-numpy) lets the Nim procs take numpy arrays
