@@ -23,7 +23,7 @@ extensions = ["src/not1d/core.nim"]
 [tool.nimlang]
 dependencies = [
     "nimpy",
-    "https://github.com/pietroppeter/nimpy-numpy",
+    "nimpy_numpy >= 0.1.0",
 ]
 
 [tool.uv]
