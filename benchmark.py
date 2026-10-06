@@ -1,9 +1,17 @@
-"""Time not1d against scipy and, when installed, the original ot1d.
+# /// script
+# requires-python = ">=3.9"
+# dependencies = ["not1d", "numpy", "scipy", "ot1d"]
+#
+# [tool.uv.sources]
+# not1d = { path = "." }
+#
+# [tool.uv.extra-build-dependencies]
+# # ot1d ships only an sdist, whose build needs these without declaring them.
+# ot1d = ["cython", "numpy"]
+# ///
+"""Time not1d against scipy and the original ot1d.
 
-    uv run python benchmark.py
-
-ot1d ships only an sdist that needs Cython and numpy already installed:
-    uv pip install numpy cython setuptools && uv pip install --no-build-isolation ot1d
+    uv run benchmark.py
 """
 
 import timeit

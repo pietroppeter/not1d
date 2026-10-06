@@ -69,7 +69,7 @@ no C compiler installed.
 ```sh
 uv sync                      # builds the extension
 uv run pytest tests          # checks against scipy.stats.wasserstein_distance
-uv run python benchmark.py   # not1d vs scipy (and ot1d, if installed)
+uv run benchmark.py          # not1d vs scipy and ot1d (a uv script: deps in its header)
 ```
 
 ## Benchmark
@@ -85,8 +85,8 @@ uv run python benchmark.py   # not1d vs scipy (and ot1d, if installed)
 | 1,000,000 | uniform | 48.59 | 350.76 | 53.14 | 41.71 |
 | 1,000,000 | weighted | 109.63 | 400.70 | 144.35 | 89.30 |
 
-ot1d is published on PyPI as an sdist only, which needs Cython and numpy installed first:
-`uv pip install numpy cython setuptools && uv pip install --no-build-isolation ot1d`.
+ot1d is published on PyPI as an sdist only, whose build needs Cython and numpy without
+declaring them: `benchmark.py` adds them through uv's `extra-build-dependencies`.
 
 ## License
 
