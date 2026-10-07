@@ -365,8 +365,8 @@ proc ot1d(x, y: NumpyArray[float64], p: int = 1,
   arguments. Checks are in Python because nimpy turns a Nim `ValueError` into a
   `nimpy.ValueError`, which is not a Python `ValueError`.
 - Building is the `[tool.hatch.build.hooks.nimlang]` table in `pyproject.toml`:
-  [nimlang](https://github.com/pietroppeter/uv-add-nimlang) compiles `core.nim` to an extension
-  module with the Nim and zig it ships, so `uv add git+https://github.com/pietroppeter/not1d`
+  [nimlang-pypi](https://github.com/pietroppeter/uv-add-nimlang) compiles `core.nim` to an
+  extension module with the Nim and zig it ships, so `uv add git+https://github.com/pietroppeter/not1d`
   works on a machine with no Nim and no C compiler.
 
 ## 6. A bug in ot1d, and a C++ cheat sheet for Nim users
